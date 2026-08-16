@@ -111,12 +111,12 @@
   #previewModal .modal-box { max-height:92vh; }
   #previewScroll { overflow:auto; max-height:70vh; background:#e9eaec; border-radius:8px; padding:12px 0; }
   .sheet {
-    width:100mm; height:150mm; display:flex; background:#fff;
+    width:100mm; height:150mm; display:flex; flex-direction:column; background:#fff;
     margin:0 auto 14px; box-shadow:0 1px 4px rgba(0,0,0,.2); position:relative;
     transform-origin:top center;
   }
-  .cut-line { position:absolute; left:50%; top:0; bottom:0; border-left:1px dashed #bbb; }
-  .label-half { width:50mm; height:150mm; padding:4mm 3mm; display:flex; flex-direction:column; }
+  .cut-line { position:absolute; top:50%; left:0; right:0; border-top:1px dashed #bbb; }
+  .label-half { width:100mm; height:75mm; padding:4mm 6mm; display:flex; flex-direction:column; }
   .label-half.empty { visibility:hidden; }
   .from-block { font-size:7pt; line-height:1.25; color:#333; border-bottom:1px solid #333; padding-bottom:2mm; margin-bottom:3mm; }
   .from-block .tag { font-size:6.5pt; color:#666; }
@@ -135,7 +135,7 @@
   @media print {
     body * { visibility:hidden; }
     #printArea, #printArea * { visibility:visible; }
-    #printArea { position:absolute; left:0; top:0; }
+    #printArea { display:block !important; position:absolute; left:0; top:0; }
     .sheet { box-shadow:none; margin:0; page-break-after:always; transform:none !important; }
     @page { size:100mm 150mm; margin:0; }
   }
