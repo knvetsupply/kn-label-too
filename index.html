@@ -279,11 +279,11 @@ function guessAddress(raw) {
          raw.customerAddress || (raw.contact && raw.contact.address) || '';
 }
 function guessPhone(raw) {
-  return raw.contactTel || raw.contactPhone || raw.tel || raw.phone ||
+  return raw.contactNumber || raw.contactTel || raw.contactPhone || raw.tel || raw.phone ||
          raw.customerTel || (raw.contact && raw.contact.tel) || '';
 }
 function guessPostcode(raw) {
-  return raw.postcode || raw.postalCode || raw.zipcode || raw.zipCode ||
+  return raw.contactZipCode || raw.postcode || raw.postalCode || raw.zipcode || raw.zipCode ||
          raw.contactPostcode || (raw.contact && (raw.contact.postcode || raw.contact.postalCode)) || '';
 }
 function guessContactPerson(raw) {
