@@ -173,7 +173,10 @@
     <label>Client ID</label>
     <input id="cfClientId" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
     <label>Client Secret</label>
-    <input id="cfClientSecret" type="password" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false">
+    <div style="position:relative;">
+      <input id="cfClientSecret" type="password" autocapitalize="off" autocorrect="off" autocomplete="off" spellcheck="false" style="padding-right:38px;">
+      <span onclick="toggleSecretVisibility()" style="position:absolute; right:10px; top:50%; transform:translateY(-50%); cursor:pointer; font-size:16px; user-select:none;">👁</span>
+    </div>
     <hr style="margin:16px 0;border:none;border-top:1px solid #eee;">
     <label>ชื่อบริษัท/ผู้ส่ง</label>
     <input id="senderName" value="KN VET SUPPLY CO., LTD.">
@@ -222,11 +225,20 @@ if (senderCfg) {
   document.getElementById('senderAddr').value = senderCfg.addr || '';
 }
 
+function cleanCred(s) {
+  return (s || '').replace(/[\u200B-\u200D\uFEFF\u00A0]/g, '').trim();
+}
+
+function toggleSecretVisibility() {
+  const el = document.getElementById('cfClientSecret');
+  el.type = el.type === 'password' ? 'text' : 'password';
+}
+
 function saveSettings() {
   cfg.mode = document.getElementById('apiMode').value;
-  cfg.workerUrl = document.getElementById('workerUrl').value.trim().replace(/\/+$/,'');
-  cfg.cid = document.getElementById('cfClientId').value.trim();
-  cfg.cs = document.getElementById('cfClientSecret').value.trim();
+  cfg.workerUrl = cleanCred(document.getElementById('workerUrl').value).replace(/\/+$/,'');
+  cfg.cid = cleanCred(document.getElementById('cfClientId').value);
+  cfg.cs = cleanCred(document.getElementById('cfClientSecret').value);
   localStorage.setItem('psCfg', JSON.stringify(cfg));
   senderCfg = {
     name: document.getElementById('senderName').value.trim(),
