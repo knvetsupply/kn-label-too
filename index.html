@@ -133,6 +133,7 @@
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   @media print {
+    body { padding:0 !important; margin:0 !important; }
     header, .wrap, .bottombar, .modal, .toast { display:none !important; }
     #printArea { display:block !important; }
     .sheet { box-shadow:none; margin:0; transform:none !important; }
@@ -255,19 +256,19 @@ function toast(msg) {
 // DEMO DATA
 // ══════════════════════════════════════════════════════════════
 const DEMO_LIST = [
-  { serial:'INV2024100088', contactName:'บริษัท สมศรี จำกัด', address:'88/1 ถ.สุขุมวิท ต.บางนา อ.บางนา จ.กรุงเทพฯ 10260', phone:'081-2345678' },
-  { serial:'INV2024100089', contactName:'โรงพยาบาลสัตว์หทัยรักษ์', address:'', phone:'' },
-  { serial:'INV2024100090', contactName:'คลินิกหมอไอรักษาสัตว์', address:'562/8 หมู่ 14 ถ.สายในเมือง ต.บ้านอ้อมแก้ว จ.อุดรธานี 30110', phone:'061-3892166' },
-  { serial:'INV2024100091', contactName:'บริษัท เพชร วิช สัตวแพทย์ จำกัด', address:'2,4 ถ.เพชรบุรีตัดใหม่ ต.บางกะปิ จ.กรุงเทพฯ 10240', phone:'092-8604133' },
-  { serial:'INV2024100092', contactName:'คลินิกหมอบังอิจักษาสัตว์', address:'', phone:'085-3626289' },
-  { serial:'INV2024100093', contactName:'คลินิกรักษาสัตว์เลี้ยงสุขใจ', address:'19/4 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000', phone:'044-255789' },
-  { serial:'INV2024100094', contactName:'บริษัท ฟาร์มาเวท จำกัด', address:'', phone:'' },
-  { serial:'INV2024100095', contactName:'โรงพยาบาลสัตว์แม่โจ้', address:'155 ถ.เชียงใหม่-พร้าว ต.แม่เหียะ อ.เมือง จ.เชียงใหม่ 50100', phone:'053-878900' },
-  { serial:'INV2024100096', contactName:'คลินิกหมอพลอยรักสัตว์', address:'', phone:'089-7712345' },
-  { serial:'INV2024100097', contactName:'บริษัท สัตวแพทย์ก้าวหน้า จำกัด', address:'88 ถ.พระราม 2 ต.บางมด อ.จอมทอง จ.กรุงเทพฯ 10150', phone:'02-4567890' }
+  { serial:'INV2024100088', contactName:'บริษัท สมศรี จำกัด', address:'88/1 ถ.สุขุมวิท ต.บางนา อ.บางนา จ.กรุงเทพฯ', postcode:'10260', phone:'081-2345678', contactPerson:'คุณสมศรี' },
+  { serial:'INV2024100089', contactName:'โรงพยาบาลสัตว์หทัยรักษ์', address:'', postcode:'', phone:'', contactPerson:'' },
+  { serial:'INV2024100090', contactName:'คลินิกหมอไอรักษาสัตว์', address:'562/8 หมู่ 14 ถ.สายในเมือง ต.บ้านอ้อมแก้ว จ.อุดรธานี 30110', postcode:'', phone:'061-3892166', contactPerson:'หมอไอ' },
+  { serial:'INV2024100091', contactName:'บริษัท เพชร วิช สัตวแพทย์ จำกัด', address:'2,4 ถ.เพชรบุรีตัดใหม่ ต.บางกะปิ จ.กรุงเทพฯ', postcode:'10240', phone:'092-8604133', contactPerson:'' },
+  { serial:'INV2024100092', contactName:'คลินิกหมอบังอิจักษาสัตว์', address:'', postcode:'', phone:'085-3626289', contactPerson:'' },
+  { serial:'INV2024100093', contactName:'คลินิกรักษาสัตว์เลี้ยงสุขใจ', address:'19/4 ถ.มิตรภาพ ต.ในเมือง อ.เมือง จ.นครราชสีมา 30000', postcode:'', phone:'044-255789', contactPerson:'คุณสุขใจ' },
+  { serial:'INV2024100094', contactName:'บริษัท ฟาร์มาเวท จำกัด', address:'', postcode:'', phone:'', contactPerson:'' },
+  { serial:'INV2024100095', contactName:'โรงพยาบาลสัตว์แม่โจ้', address:'155 ถ.เชียงใหม่-พร้าว ต.แม่เหียะ อ.เมือง จ.เชียงใหม่', postcode:'50100', phone:'053-878900', contactPerson:'คุณแม่โจ้' },
+  { serial:'INV2024100096', contactName:'คลินิกหมอพลอยรักสัตว์', address:'', postcode:'', phone:'089-7712345', contactPerson:'' },
+  { serial:'INV2024100097', contactName:'บริษัท สัตวแพทย์ก้าวหน้า จำกัด', address:'88 ถ.พระราม 2 ต.บางมด อ.จอมทอง จ.กรุงเทพฯ 10150', postcode:'', phone:'02-4567890', contactPerson:'คุณก้าวหน้า' }
 ];
 
-let orders = []; // {serial, contactName, headerAddr, headerPhone, mode:'header'|'manual', manualAddr, manualPhone, include:true}
+let orders = []; // {serial, contactName, headerAddr, headerPhone, mode:'header'|'manual', manualAddr, manualPhone, include:false} — user ticks each one manually
 
 // ══════════════════════════════════════════════════════════════
 // FIELD GUESSING (live mode) — FlowAccount field names uncertain,
@@ -280,6 +281,19 @@ function guessAddress(raw) {
 function guessPhone(raw) {
   return raw.contactTel || raw.contactPhone || raw.tel || raw.phone ||
          raw.customerTel || (raw.contact && raw.contact.tel) || '';
+}
+function guessPostcode(raw) {
+  return raw.postcode || raw.postalCode || raw.zipcode || raw.zipCode ||
+         raw.contactPostcode || (raw.contact && (raw.contact.postcode || raw.contact.postalCode)) || '';
+}
+function guessContactPerson(raw) {
+  return raw.contactPerson || raw.attentionName || raw.contactPersonName ||
+         raw.attention || (raw.contact && (raw.contact.contactPerson || raw.contact.name)) || '';
+}
+function withPostcode(addr, postcode) {
+  if (!postcode) return addr;
+  if (!addr) return postcode;
+  return addr.includes(postcode) ? addr : addr.trim() + ' ' + postcode;
 }
 
 async function getToken() {
@@ -324,7 +338,9 @@ async function loadOrders(isAuto) {
         serial: raw.documentSerial,
         contactName: raw.contactName,
         address: guessAddress(raw),
-        phone: guessPhone(raw)
+        phone: guessPhone(raw),
+        postcode: guessPostcode(raw),
+        contactPerson: guessContactPerson(raw)
       }));
     } catch(e) { toast('เชื่อมต่อ API ไม่ได้'); setCountLine('โหลดไม่สำเร็จ'); return; }
   }
@@ -340,15 +356,18 @@ async function loadOrders(isAuto) {
       // refresh header info in case it changed, keep user's choices
       prev.headerAddr = d.address || prev.headerAddr;
       prev.headerPhone = d.phone || prev.headerPhone;
+      prev.headerPostcode = d.postcode || prev.headerPostcode;
+      prev.headerContactPerson = d.contactPerson || prev.headerContactPerson;
       prev.contactName = d.contactName || prev.contactName;
       return prev;
     }
     return {
       serial: d.serial, contactName: d.contactName,
       headerAddr: d.address || '', headerPhone: d.phone || '',
+      headerPostcode: d.postcode || '', headerContactPerson: d.contactPerson || '',
       mode: d.address ? 'header' : 'manual',
       manualAddr: '', manualPhone: d.phone || '',
-      include: true
+      include: false
     };
   });
 
@@ -397,7 +416,7 @@ function renderCards() {
       </div>
       ${o.mode==='header' ? `
         <div class="addr-preview ${o.headerAddr?'':'missing'}">
-          ${o.headerAddr ? escapeHtml(o.headerAddr) + (o.headerPhone?'<br>โทร. '+escapeHtml(o.headerPhone):'') : '⚠️ ไม่พบที่อยู่ในหัวบิล — กรุณาสลับไป "ที่อยู่จัดส่งอื่น" แล้วกรอกเอง'}
+          ${o.headerAddr ? escapeHtml(withPostcode(o.headerAddr, o.headerPostcode)) + (o.headerContactPerson?'<br>ผู้ติดต่อ: '+escapeHtml(o.headerContactPerson):'') + (o.headerPhone?'<br>โทร. '+escapeHtml(o.headerPhone):'') : '⚠️ ไม่พบที่อยู่ในหัวบิล — กรุณาสลับไป "ที่อยู่จัดส่งอื่น" แล้วกรอกเอง'}
         </div>
       ` : `
         <div class="manual-fields show">
@@ -430,16 +449,18 @@ function buildSheetsHtml() {
   const senderPhone = document.getElementById('senderPhone').value.trim();
 
   const items = orders.filter(o=>o.include).map(o => {
-    const addr = o.mode==='header' ? o.headerAddr : o.manualAddr;
+    const rawAddr = o.mode==='header' ? o.headerAddr : o.manualAddr;
+    const addr = o.mode==='header' ? withPostcode(rawAddr, o.headerPostcode) : rawAddr;
     const phone = o.mode==='header' ? o.headerPhone : o.manualPhone;
-    return { name:o.contactName, addr, phone, ref:o.serial };
+    const contactPerson = o.mode==='header' ? o.headerContactPerson : '';
+    return { name:o.contactName, addr, phone, contactPerson, ref:o.serial };
   }).filter(o=>o.addr); // skip ones missing address entirely
 
   function fromBlock() {
     return `<div class="from-block"><div class="tag">จาก</div><div class="name">${escapeHtml(senderName)}</div><div>${escapeHtml(senderAddr)}</div><div>โทร. ${escapeHtml(senderPhone)}</div></div>`;
   }
   function toBlock(q) {
-    return `<div class="to-tag">กรุณานำส่ง</div><div class="to-block"><div class="name">${escapeHtml(q.name)}</div><div class="addr">${escapeHtml(q.addr)}</div><div class="phone">โทร. ${escapeHtml(q.phone)}</div><div class="ref">อ้างอิง: ${escapeHtml(q.ref)}</div></div>`;
+    return `<div class="to-tag">กรุณานำส่ง</div><div class="to-block"><div class="name">${escapeHtml(q.name)}${q.contactPerson?' (ผู้ติดต่อ: '+escapeHtml(q.contactPerson)+')':''}</div><div class="addr">${escapeHtml(q.addr)}</div><div class="phone">โทร. ${escapeHtml(q.phone)}</div><div class="ref">อ้างอิง: ${escapeHtml(q.ref)}</div></div>`;
   }
 
   let html = '';
