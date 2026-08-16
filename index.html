@@ -33,7 +33,7 @@
   }
   .btn-load { background:#2563eb; color:#fff; flex:0 0 auto; }
 
-  .count-line { font-size:12.5px; color:#888; margin:6px 2px 4px; display:flex; align-items:center; gap:6px; }
+  .count-line { font-size:12.5px; color:#888; margin:6px 2px 4px; display:flex; align-items:flex-start; gap:6px; flex-wrap:wrap; line-height:1.5; word-break:break-word; }
   .count-line .live-dot { width:7px; height:7px; border-radius:50%; background:#16a34a; display:inline-block; }
   .count-line .refresh-note { color:#aaa; margin-left:auto; font-size:11px; }
 
@@ -290,22 +290,32 @@ function withPostcode(addr, postcode) {
 }
 
 async function getToken() {
-  if (cfg.mode === 'demo') return 'demo';
+  if (cfg.mode === 'demo') return { token: 'demo' };
   const now = Date.now();
-  if (cfg.token && cfg.texp && now < cfg.texp - 300000) return cfg.token;
-  if (!cfg.cid || !cfg.cs) { toast('ตั้งค่า Client ID/Secret ก่อน'); document.getElementById('settingsModal').classList.add('show'); return null; }
+  if (cfg.token && cfg.texp && now < cfg.texp - 300000) return { token: cfg.token };
+  if (!cfg.cid || !cfg.cs) {
+    document.getElementById('settingsModal').classList.add('show');
+    return { error: 'ยังไม่ได้กรอก Client ID/Secret' };
+  }
+  const apiBase = (cfg.workerUrl && cfg.workerUrl.startsWith('http') ? cfg.workerUrl : 'https://openapi.flowaccount.com') + (cfg.env || '/test');
   try {
-    const apiBase = (cfg.workerUrl && cfg.workerUrl.startsWith('http') ? cfg.workerUrl : 'https://openapi.flowaccount.com') + (cfg.env || '/test');
     const r = await fetch(apiBase + '/token', {
       method:'POST', headers:{'Content-Type':'application/x-www-form-urlencoded'},
       body: new URLSearchParams({grant_type:'client_credentials',scope:'flowaccount-api',client_id:cfg.cid,client_secret:cfg.cs})
     });
-    if (!r.ok) { toast('Client ID/Secret ไม่ถูกต้อง'); return null; }
+    if (!r.ok) {
+      let detail = '';
+      try { detail = (await r.text()).slice(0,150); } catch(_) {}
+      return { error: `ขอ token ไม่สำเร็จ (HTTP ${r.status}) ${detail}` };
+    }
     const j = await r.json();
+    if (!j.access_token) return { error: 'ได้คำตอบแต่ไม่มี access_token: ' + JSON.stringify(j).slice(0,150) };
     cfg.token = j.access_token; cfg.texp = Date.now() + (j.expires_in||3600)*1000;
     localStorage.setItem('psCfg', JSON.stringify(cfg));
-    return cfg.token;
-  } catch(e) { toast('เชื่อมต่อ Flowaccount ไม่ได้'); return null; }
+    return { token: cfg.token };
+  } catch(e) {
+    return { error: `เชื่อมต่อ Worker ไม่ได้: ${e.name}: ${e.message}` };
+  }
 }
 
 const ORDER_LIMIT = 10;
@@ -317,13 +327,19 @@ async function loadOrders(isAuto) {
     await new Promise(r=>setTimeout(r,400));
     list = DEMO_LIST.slice(0, ORDER_LIMIT);
   } else {
-    const token = await getToken();
-    if (!token) { setCountLine('โหลดไม่สำเร็จ'); return; }
+    const tok = await getToken();
+    if (!tok.token) { setCountLine('❌ ' + tok.error); return; }
+    const token = tok.token;
     const base = (cfg.workerUrl && cfg.workerUrl.startsWith('http') ? cfg.workerUrl : 'https://openapi.flowaccount.com') + (cfg.env || '/test');
     const url = `${base}/tax-invoices?page=1&limit=${ORDER_LIMIT}`;
     try {
       const r = await fetch(url, { headers:{'Authorization':'Bearer '+token} });
-      if (!r.ok) { toast('โหลดออเดอร์ไม่สำเร็จ ('+r.status+')'); setCountLine('โหลดไม่สำเร็จ'); return; }
+      if (!r.ok) {
+        let detail = '';
+        try { detail = (await r.text()).slice(0,150); } catch(_) {}
+        setCountLine(`❌ โหลดออเดอร์ไม่สำเร็จ (HTTP ${r.status}) ${detail}`);
+        return;
+      }
       const j = await r.json();
       const rawList = j.data?.list || j.data?.items || [];
       console.log('[LabelReview] raw list:', rawList); // เช็คชื่อ field จริงถ้า address/phone ไม่ขึ้น
@@ -335,7 +351,7 @@ async function loadOrders(isAuto) {
         postcode: guessPostcode(raw),
         contactPerson: guessContactPerson(raw)
       }));
-    } catch(e) { toast('เชื่อมต่อ API ไม่ได้'); setCountLine('โหลดไม่สำเร็จ'); return; }
+    } catch(e) { setCountLine(`❌ เชื่อมต่อ API ไม่ได้: ${e.name}: ${e.message}`); return; }
   }
 
   // merge: keep existing tick/manual edits for orders already in the list,
