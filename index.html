@@ -240,10 +240,10 @@ let cfg = JSON.parse(localStorage.getItem('psCfg') || '{"mode":"demo","env":"/te
   try {
     const json = decodeURIComponent(atob(setup).split('').map(c => '%' + ('00' + c.charCodeAt(0).toString(16)).slice(-2)).join(''));
     const incoming = JSON.parse(json);
+    // Copy every field from the source device's cfg (including "env", which has
+    // no UI control and would otherwise silently stay at default on a fresh device).
+    cfg = Object.assign({}, cfg, incoming);
     cfg.mode = 'live';
-    cfg.workerUrl = incoming.workerUrl || cfg.workerUrl;
-    cfg.cid = incoming.cid || cfg.cid;
-    cfg.cs = incoming.cs || cfg.cs;
     cfg.token = ''; cfg.texp = 0; // force fresh token with new creds
     localStorage.setItem('psCfg', JSON.stringify(cfg));
     // strip the setup param from the address bar so the secret doesn't linger in history/URL
@@ -276,14 +276,13 @@ function toggleSecretVisibility() {
 }
 
 function showSetupQR() {
-  const workerUrl = cleanCred(document.getElementById('workerUrl').value);
-  const cid = cleanCred(document.getElementById('cfClientId').value);
-  const cs = cleanCred(document.getElementById('cfClientSecret').value);
-  if (!workerUrl || !cid || !cs) {
-    toast('กรอก Worker URL / Client ID / Secret ให้ครบก่อน แล้วกดบันทึกก่อนสร้าง QR');
+  // Use the *actual* cfg that's live and working on this device right now —
+  // not just the 3 visible form fields — so nothing (like "env") gets missed.
+  if (!cfg.workerUrl || !cfg.cid || !cfg.cs) {
+    toast('ยังไม่มีค่า Worker URL / Client ID / Secret ที่บันทึกไว้ กรุณากรอกแล้วกดบันทึกก่อน');
     return;
   }
-  const payload = JSON.stringify({ workerUrl, cid, cs });
+  const payload = JSON.stringify(cfg);
   // UTF-8 safe base64 encode
   const b64 = btoa(encodeURIComponent(payload).replace(/%([0-9A-F]{2})/g, (m, p1) => String.fromCharCode('0x' + p1)));
   const setupUrl = window.location.origin + window.location.pathname + '?setup=' + b64;
