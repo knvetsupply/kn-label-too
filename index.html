@@ -133,10 +133,10 @@
   .toast.show { opacity:1; transform:translateX(-50%) translateY(0); }
 
   @media print {
-    body * { visibility:hidden; }
-    #printArea, #printArea * { visibility:visible; }
-    #printArea { display:block !important; position:absolute; left:0; top:0; }
-    .sheet { box-shadow:none; margin:0; page-break-after:always; transform:none !important; }
+    header, .wrap, .bottombar, .modal, .toast { display:none !important; }
+    #printArea { display:block !important; }
+    .sheet { box-shadow:none; margin:0; transform:none !important; }
+    .sheet:not(:last-child) { page-break-after: always; }
     @page { size:100mm 150mm; margin:0; }
   }
 </style>
